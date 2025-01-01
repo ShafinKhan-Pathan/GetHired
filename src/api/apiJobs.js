@@ -48,14 +48,37 @@ export async function saveJob(token, { alreadySaved }, saveData) {
   }
 }
 // API Single Job
-// export async function getCompanies(token) {
-//   const supabase = await supabaseClient(token);
+export async function getSingleJob(token, { job_id }) {
+  const supabase = await supabaseClient(token);
 
-//   const { data, error: error } = await supabase.from("companies").select("*");
+  const { data, error: error } = await supabase
+    .from("jobs")
+    .select(
+      "*, company:companies(name, logo_url), applications:applications(*)"
+    )
+    .eq("id", job_id)
+    .single();
 
-//   if (error) {
-//     console.log("Error Fetching Companies Details : ", error);
-//     return null;
-//   }
-//   return data;
-// }
+  if (error) {
+    console.log("Error Fetching Single Job : ", error);
+    return null;
+  }
+  return data;
+}
+
+// API Call for Updating the Hiring Status
+export async function updateHiringStatus(token, { job_id }, isOpen) {
+  const supabase = await supabaseClient(token);
+
+  const { data, error: error } = await supabase
+    .from("jobs")
+    .update({isOpen})
+    .eq("id", job_id)
+    .select()
+
+  if (error) {
+    console.log("Error Updating Hiring Status : ", error);
+    return null;
+  }
+  return data;
+}

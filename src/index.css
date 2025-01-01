@@ -124,3 +124,8 @@
     @apply bg-background text-foreground;
   }
 }
+.wmde-markdown ul{
+  list-style-type: square;
+  padding-left: 25px;
+  color: white;
+}
