@@ -6,7 +6,17 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-
+import UseFetch from "@/hooks/Use-Fetch";
+import { updateApplicationStatus } from "@/api/apiApplications";
+import { BarLoader } from "react-spinners";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 const ApplicationCard = ({ application, isCandidate = false }) => {
   const handleDownload = () => {
     const link = document.createElement("a");
@@ -14,8 +24,18 @@ const ApplicationCard = ({ application, isCandidate = false }) => {
     link.target = "_blank";
     link.click();
   };
+  const { loading: loadingHiringStatus, fn: fnHiringStatus } = UseFetch(
+    updateApplicationStatus,
+    {
+      job_id: application.job_id,
+    }
+  );
+  const handleStatusChange = (status) => {
+    fnHiringStatus(status);
+  };
   return (
     <Card>
+      {loadingHiringStatus && <BarLoader width={"100%"} color="#36d7b7" />}
       <CardHeader>
         <CardTitle className="flex justify-between font-bold">
           {isCandidate
@@ -48,7 +68,28 @@ const ApplicationCard = ({ application, isCandidate = false }) => {
       </CardContent>
       <CardFooter className="flex justify-between">
         <span>{new Date(application?.created_at).toLocaleString()}</span>
-        {!isCandidate ? <span className="capitalize font-bold">Status : {application?.status}</span> : <></>}
+        {isCandidate ? (
+          <span className="capitalize font-bold">
+            Status : {application?.status}
+          </span>
+        ) : (
+          <Select
+            onValueChange={handleStatusChange}
+            defaultValue={application.status}
+          >
+            <SelectTrigger className="w-52">
+              <SelectValue placeholder="Application Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="applied">Applied</SelectItem>
+                <SelectItem value="interviewing">Interviewing</SelectItem>
+                <SelectItem value="hired">Hired</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        )}
       </CardFooter>
     </Card>
   );
