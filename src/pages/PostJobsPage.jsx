@@ -17,7 +17,11 @@ import UseFetch from "@/hooks/Use-Fetch";
 import { getCompanies } from "@/api/apiCompanies";
 import { useUser } from "@clerk/clerk-react";
 import { BarLoader } from "react-spinners";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
+import MDEditor from "@uiw/react-md-editor";
+import { Button } from "@/components/ui/button";
+import { addNewJob } from "@/api/apiJobs";
+import AddCompanyDrawer from "@/components/AddCompanyDrawer";
 
 const schema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -28,6 +32,7 @@ const schema = z.object({
 });
 const PostJobsPage = () => {
   const { isLoaded, user } = useUser();
+  const navigate = useNavigate();
   const {
     register,
     control,
@@ -51,18 +56,39 @@ const PostJobsPage = () => {
       fnCompanies();
     }
   }, [isLoaded]);
+  const {
+    loading: loadingCreateJob,
+    error: errorCreateJob,
+    data: dataCreateJob,
+    fn: fnCreateJob,
+  } = UseFetch(addNewJob);
+  const onSubmit = (data) => {
+    fnCreateJob({
+      ...data,
+      recruiter_id: user.id,
+      isOpen: true,
+    });
+  };
+  useEffect(() => {
+    if (dataCreateJob?.length > 0) navigate("/jobs");
+  }, [loadingCreateJob]);
+
   if (!isLoaded || loadingCompanies) {
     return <BarLoader className="mb-4" width={"100%"} color="#D3D3D3" />;
   }
   if (user?.unsafeMetadata?.role !== "recruiter") {
     return <Navigate to="/jobs" />;
   }
+
   return (
     <div>
       <h1 className="gradient-title font-extrabold text-5xl sm:text-7xl text-center pb-8">
         Post a Job
       </h1>
-      <form className="flex flex-col gap-4 pb-0 p-4">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-4 pb-0 p-4"
+      >
         <Input placeholder="Job Title" {...register("title")} />
         {errors.title && <p className="text-red-500">{errors.title.message}</p>}
         <Textarea placeholder="Job Description" {...register("description")} />
@@ -98,7 +124,13 @@ const PostJobsPage = () => {
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Filter Jobs by Companies" />
+                  <SelectValue placeholder="Filter Jobs by Companies">
+                    {field.value
+                      ? companies?.find(
+                          (company) => company.id === Number(field.value)
+                        )?.name
+                      : "Company"}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -122,9 +154,32 @@ const PostJobsPage = () => {
               </Select>
             )}
           />
-
           {/* Add Compant Drawer */}
+          <AddCompanyDrawer fetchCompanies = {fnCompanies} />
         </div>
+        {errors.location && (
+          <p className="text-red-500">{errors.location.message}</p>
+        )}
+        {errors.company_id && (
+          <p className="text-red-500">{errors.company_id.message}</p>
+        )}
+        <Controller
+          name="requirements"
+          control={control}
+          render={({ field }) => (
+            <MDEditor value={field.value} onChange={field.onChange} />
+          )}
+        />
+        {errors.requirements && (
+          <p className="text-red-500">{errors.requirements.message}</p>
+        )}
+        {errorCreateJob?.message && (
+          <p className="text-red-500">{errorCreateJob?.message}</p>
+        )}
+        {loadingCreateJob && <BarLoader width={"100%"} color="#36d7b7" />}
+        <Button type="submit" variant="blue" size="lg" className="mt-2">
+          Submit
+        </Button>
       </form>
     </div>
   );

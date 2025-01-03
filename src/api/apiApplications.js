@@ -15,28 +15,46 @@ export async function applyToJob(token, _, jobData) {
     return null;
   }
   const resume = `${supabaseUrl}/storage/v1/object/public/resumes/${filename}`;
-  const { data, error } = await supabase.from("applications").insert([
-    {
-      ...jobData,
-      resume,
-    },
-  ]).select()
-  if(error){
-    console.error("Error Submitting Application : ", error)
-    return null
+  const { data, error } = await supabase
+    .from("applications")
+    .insert([
+      {
+        ...jobData,
+        resume,
+      },
+    ])
+    .select();
+  if (error) {
+    console.error("Error Submitting Application : ", error);
+    return null;
   }
-  return data
+  return data;
 }
-export async function updateApplicationStatus(token, {job_id}, status) {
+export async function updateApplicationStatus(token, { job_id }, status) {
   const supabase = await supabaseClient(token);
 
-  const { data, error: error } = await supabase.from("applications")
-  .update({status})
-  .eq("job_id", job_id)
-  .select();
+  const { data, error: error } = await supabase
+    .from("applications")
+    .update({ status })
+    .eq("job_id", job_id)
+    .select();
 
   if (error || data.length === 0) {
     console.log("Error Updating Application status : ", error);
+    return null;
+  }
+  return data;
+}
+export async function getApplications(token, { user_id }) {
+  const supabase = await supabaseClient(token);
+
+  const { data, error } = await supabase
+    .from("applications")
+    .select("*, job:jobs(title, company:companies(name))")
+    .eq("candidate_id", user_id);
+
+  if (error) {
+    console.log("Error Fetching Applications : ", error);
     return null;
   }
   return data;
