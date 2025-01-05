@@ -6,6 +6,7 @@ import {
   SignedOut,
   SignIn,
   SignInButton,
+  SignUp,
   UserButton,
   useUser,
 } from "@clerk/clerk-react";
@@ -13,6 +14,7 @@ import { BriefcaseBusiness, Heart, PenBox } from "lucide-react";
 
 const Header = () => {
   const [showSignInModal, setShowSignInModal] = useState(false);
+  const [showSignUpModal, setShowSignupModal] = useState(false);
   const [search, setSearch] = useSearchParams();
   const { user } = useUser();
 
@@ -25,6 +27,7 @@ const Header = () => {
   const handleOverLayClick = (e) => {
     if (e.target === e.currentTarget) {
       setShowSignInModal(false);
+      setShowSignupModal(false);
       setSearch({});
     }
   };
@@ -75,6 +78,13 @@ const Header = () => {
               </UserButton.MenuItems>
             </UserButton>
           </SignedIn>
+          <div></div>
+          {!user ? ( // If the user is not logged in
+            <Button variant="outline" onClick={() => setShowSignupModal(true)}>
+              Sign Up
+            </Button>
+          ) : null}{" "}
+          {/* If the user is logged in, render nothing */}
         </div>
       </nav>
       {showSignInModal && (
@@ -83,6 +93,17 @@ const Header = () => {
           onClick={handleOverLayClick}
         >
           <SignIn
+            signUpForceRedirectUrl="/onboarding"
+            fallbackRedirectUrl="/onboarding"
+          />
+        </div>
+      )}
+      {showSignUpModal && (
+        <div
+          className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-80 z-50"
+          onClick={handleOverLayClick}
+        >
+          <SignUp
             signUpForceRedirectUrl="/onboarding"
             fallbackRedirectUrl="/onboarding"
           />

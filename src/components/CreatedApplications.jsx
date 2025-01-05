@@ -18,7 +18,7 @@ const CreatedApplications = () => {
     fnApplications();
   }, []);
   if (loadingApplications) {
-    return <BarLoader className="mb-4" width={"100%"} color="#36d7b7" />;
+    return <BarLoader className="mb-4" width={"100%"} color="#D3D3D3" />;
   }
   return (
     <div className="flex flex-col gap-2">

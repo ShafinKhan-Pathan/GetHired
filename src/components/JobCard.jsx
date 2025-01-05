@@ -51,7 +51,9 @@ const JobCard = ({
   }, [savedJob]);
   return (
     <Card className="flex flex-col">
-      {loadingDeleteJob && <BarLoader className="mt-4" width={"100%"} color="#36d7b7" />}
+      {loadingDeleteJob && (
+        <BarLoader className="mt-4" width={"100%"} color="#D3D3D3" />
+      )}
       <CardHeader>
         <CardTitle className="flex justify-between items-center font-bold">
           {job.title}
