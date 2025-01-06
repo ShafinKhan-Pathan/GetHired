@@ -37,7 +37,7 @@ const Header = () => {
         <Link to="/">
           <img src="/Logo1.png" className="h-20" alt="Get Hirred" />
         </Link>
-        <div className="flex gap-8">
+        <div className="flex gap-2 sm:gap-4 lg:gap-8">
           <SignedOut>
             <Button
               variant="outline"
