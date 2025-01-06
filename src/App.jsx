@@ -1,13 +1,9 @@
 import "./App.css";
 // Shadcnui Components Imports
-import { Button } from "./components/ui/button";
 import { ThemeProvider } from "@/components/theme-provider";
 
 // React Router Dom Imports
 import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
   createBrowserRouter,
   RouterProvider,
 } from "react-router-dom";
